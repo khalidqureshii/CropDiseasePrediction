@@ -5,3 +5,10 @@ uvicorn
 fastapi
 python-multipart
 dotenv
+rasterio
+pandas
+numpy
+request
+datetime
+pickle
+warnings
