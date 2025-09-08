@@ -155,7 +155,18 @@ def analyze_disease(img_bytes):
         print(f"\n=== Final Prediction (after verification) ===\n{final_prediction}")
     else:
         print(f"\n=== Unanimous Prediction ===\n{gemini_prediction}")
-    return final_prediction
+    return convert_to_json(final_prediction)
+
+def convert_to_json(prediction):
+    # after you get "Crop: Wheat, Disease: Tan Spot"
+    prediction = prediction.replace("Crop:", "").replace("Disease:", "").split(",")
+    crop = prediction[0].strip()
+    disease = prediction[1].strip()
+
+    return {
+        "crop": crop,
+        "disease": disease
+    }
 
 # --- Test Upload Method ---
 def test_upload_and_run():
