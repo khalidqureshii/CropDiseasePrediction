@@ -158,7 +158,6 @@ def analyze_disease(img_bytes):
     return convert_to_json(final_prediction)
 
 def convert_to_json(prediction):
-    # after you get "Crop: Wheat, Disease: Tan Spot"
     prediction = prediction.replace("Crop:", "").replace("Disease:", "").split(",")
     crop = prediction[0].strip()
     disease = prediction[1].strip()

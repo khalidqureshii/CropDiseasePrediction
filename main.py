@@ -2,7 +2,6 @@ from fastapi import FastAPI, File, UploadFile # type: ignore
 from fastapi.responses import JSONResponse # type: ignore
 import uvicorn # type: ignore
 
-# import your functions from the same file or another module
 from crop import analyze_disease  
 
 app = FastAPI(title="Crop Disease Detection API")
