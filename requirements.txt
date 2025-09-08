@@ -1,0 +1,7 @@
+google-genai
+openai
+ipython
+uvicorn
+fastapi
+python-multipart
+dotenv
