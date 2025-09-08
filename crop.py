@@ -36,7 +36,7 @@ def describe_image_with_gemini(img_bytes):
     return response.text.strip()
 
 # --- Step 2: Identify crop and disease (Flash) ---
-def identify_crop_and_disease(img_bytes):
+def identify_crop_and_disease(img_bytes, mime_type):
     prompt = f"""
         You are an agricultural expert. Identify the crop and disease in this image. Ignore watermarks or any text at corners.
 
@@ -49,13 +49,13 @@ def identify_crop_and_disease(img_bytes):
         model="gemini-2.5-flash",
         contents=[{
             "role": "user",
-            "parts": [{"text": prompt}, {"inline_data": {"mime_type": "image/png", "data": img_bytes}}]
+            "parts": [{"text": prompt}, {"inline_data": {"mime_type": mime_type, "data": img_bytes}}]
         }]
     )
     return response.text.strip()
 
 # --- Step 3: Identify crop and disease (Pro) ---
-def pro_identify_crop_and_disease(img_bytes):
+def pro_identify_crop_and_disease(img_bytes, mime_type):
     prompt = f"""
         You are an agricultural expert. Identify the crop and disease in this image. Ignore watermarks or any text at corners.
 
@@ -68,7 +68,7 @@ def pro_identify_crop_and_disease(img_bytes):
         model="gemini-2.5-pro",
         contents=[{
             "role": "user",
-            "parts": [{"text": prompt}, {"inline_data": {"mime_type": "image/png", "data": img_bytes}}]
+            "parts": [{"text": prompt}, {"inline_data": {"mime_type": mime_type, "data": img_bytes}}]
         }]
     )
     return response.text.strip()
@@ -100,7 +100,7 @@ def predict_with_text_models(description, model_list):
     return predictions
 
 # --- Step 5: Verify Output ---
-def verify_output(img_bytes, conflicting_opinions):
+def verify_output(img_bytes, conflicting_opinions, mime_type):
     opinions_text = "\n".join([f"- {op}" for op in conflicting_opinions]) if conflicting_opinions else "None"
     prompt = f"""
     You are a highly reliable agricultural expert. Carefully analyze the uploaded image to identify the crop and disease.
@@ -120,20 +120,20 @@ def verify_output(img_bytes, conflicting_opinions):
         model="gemini-2.5-pro",
         contents=[{
             "role": "user",
-            "parts": [{"text": prompt}, {"inline_data": {"mime_type": "image/png", "data": img_bytes}}]
+            "parts": [{"text": prompt}, {"inline_data": {"mime_type": mime_type, "data": img_bytes}}]
         }]
     )
     return response.text.strip()
 
 # --- Main Workflow ---
-def analyze_disease(img_bytes):
+def analyze_disease(img_bytes, mime_type):
     description = describe_image_with_gemini(img_bytes)
     print(f"\n=== Gemini Description ===\n{description}")
 
-    gemini_prediction = identify_crop_and_disease(img_bytes)
+    gemini_prediction = identify_crop_and_disease(img_bytes, mime_type)
     print(f"\n=== Gemini Flash Prediction ===\n{gemini_prediction}")
 
-    gemini_pro_prediction = pro_identify_crop_and_disease(img_bytes)
+    gemini_pro_prediction = pro_identify_crop_and_disease(img_bytes, mime_type)
     print(f"\n=== Gemini Pro Prediction ===\n{gemini_pro_prediction}")
 
     models = ["qwen/qwen3-coder:free", "deepseek/deepseek-chat-v3.1:free"]
@@ -151,7 +151,7 @@ def analyze_disease(img_bytes):
 
     final_prediction = gemini_prediction
     if len(conflicting_opinions) > 1:
-        final_prediction = verify_output(img_bytes, conflicting_opinions)
+        final_prediction = verify_output(img_bytes, conflicting_opinions, mime_type)
         print(f"\n=== Final Prediction (after verification) ===\n{final_prediction}")
     else:
         print(f"\n=== Unanimous Prediction ===\n{gemini_prediction}")

@@ -10,7 +10,8 @@ app = FastAPI(title="Crop Disease Detection API")
 async def analyze_crop(file: UploadFile = File(...)):
     try:
         img_bytes = await file.read()
-        result = analyze_disease(img_bytes)
+        mime_type = file.content_type
+        result = analyze_disease(img_bytes, mime_type)
         return JSONResponse(content={"result": result})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
