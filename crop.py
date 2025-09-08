@@ -167,18 +167,3 @@ def convert_to_json(prediction):
         "crop": crop,
         "disease": disease
     }
-
-# --- Test Upload Method ---
-def test_upload_and_run():
-    Tk().withdraw()
-    file_path = filedialog.askopenfilename(title="Select an image file", filetypes=[("Image files", "*.png;*.jpg;*.jpeg")])
-    if not file_path:
-        print("No file selected.")
-        return
-    with open(file_path, "rb") as f:
-        img_bytes = f.read()
-    analyze_disease(img_bytes)
-
-# Run test
-if __name__ == "__main__":
-    test_upload_and_run()
