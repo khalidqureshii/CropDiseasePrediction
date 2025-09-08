@@ -43,7 +43,7 @@ def identify_crop_and_disease(img_bytes, mime_type):
         Crops: {crop_options}
         Diseases: {disease_options}
 
-        Respond in the format: Crop: <name>, Disease: <name>.
+        Respond in the format: Crop: <name>, Disease: <name>. I repeat, I do not want any sentences, just answer in the format: Crop: <name>, Disease: <name>.
     """
     response = gemini_client.models.generate_content(
         model="gemini-2.5-flash",
@@ -62,7 +62,7 @@ def pro_identify_crop_and_disease(img_bytes, mime_type):
         Crops: {crop_options}
         Diseases: {disease_options}
 
-        Respond in the format: Crop: <name>, Disease: <name>.
+        Respond in the format: Crop: <name>, Disease: <name>. I repeat, I do not want any sentences, just answer in the format: Crop: <name>, Disease: <name>.
     """
     response = gemini_client.models.generate_content(
         model="gemini-2.5-pro",
@@ -83,7 +83,7 @@ def predict_with_text_models(description, model_list):
     Identify the crop (options: {crop_options}).
     Identify the disease (options: {disease_options}).
 
-    Respond in the format: Crop: <name>, Disease: <name>.
+    Respond in the format: Crop: <name>, Disease: <name>. I repeat, I do not want any sentences, just answer in the format: Crop: <name>, Disease: <name>.
     """
     for model in model_list:
         try:
@@ -143,7 +143,7 @@ def analyze_disease(img_bytes, mime_type):
     if gemini_prediction != gemini_pro_prediction:
         conflicting_opinions.append(gemini_pro_prediction)
     for model, pred in predictions.items():
-        if pred != gemini_prediction:
+        if pred != gemini_prediction and len(pred) <= 50:
             conflicting_opinions.append(pred)
 
     for model, pred in predictions.items():
