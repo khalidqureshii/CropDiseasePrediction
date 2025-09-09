@@ -1,9 +1,9 @@
 from IPython.display import Markdown, display # type: ignore
 from google import genai
 from openai import OpenAI # type: ignore
-from tkinter import Tk, filedialog  # for test upload
 import os
 from dotenv import load_dotenv # type: ignore
+import re
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -125,6 +125,76 @@ def verify_output(img_bytes, conflicting_opinions, mime_type):
     )
     return response.text.strip()
 
+# Step 6: Suggest Causes and Recommendations
+def get_disease_analysis(prediction: str):
+    prompt = f"""
+    You are an agricultural expert. The detected condition is:
+
+    {prediction}
+
+    Provide two sections:
+
+    ## Possible Causes
+    - List concise bullet points explaining why this disease might occur.
+    - Keep each point within 2 lines.
+    - Use numbers or specifics where possible (e.g., "High humidity >70%", "3-4 days of continuous rain").
+
+    ## Recommendations
+    - Give **only current, actionable steps** (no "if disease continues", no "in future seasons").
+    - Specify **the best suited product(s)** (not "e.g.").
+    - Include **dosage, frequency, and application method** (e.g., "Apply 2 sprays of Propiconazole 25 EC @ 1 ml/L water, 10 days apart").
+    - Include any **field management practices** (like irrigation adjustments, removal of infected plants) that can be done immediately.
+    - Keep each bullet ≤2 lines.
+
+    Remember, give 2 clear sections 'Possible Causes' and 'Recommendations' with bullet points.
+    """
+
+    response = gemini_client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=[{"role": "user", "parts": [{"text": prompt}]}]
+    )
+
+    text = response.text.strip()
+
+    causes, recommendations = [], []
+    current_section = None
+
+    for line in text.splitlines():
+        line = line.strip()
+
+        # Section headers (flexible match)
+        if re.search(r"possible causes", line, re.IGNORECASE):
+            current_section = "causes"
+            continue
+        elif re.search(r"recommendations", line, re.IGNORECASE):
+            current_section = "recommendations"
+            continue
+
+        # Bullets can start with -, *, or numbers like 1.
+        if re.match(r"^[-*]\s+|^\d+\.\s+", line):
+            item = re.sub(r"^[-*\d.]+\s*", "", line).strip()
+            item = item.replace("**", "")
+            if current_section == "causes":
+                causes.append(item)
+            elif current_section == "recommendations":
+                recommendations.append(item)
+
+    # Extract crop & disease
+    try:
+        parsed = prediction.replace("Crop:", "").replace("Disease:", "").split(",")
+        crop = parsed[0].strip()
+        disease = parsed[1].strip()
+    except Exception:
+        crop, disease = None, prediction.strip()
+
+    return {
+        "crop": crop,
+        "disease": disease,
+        "causes": causes,
+        "recommendations": recommendations
+    }
+
+
 # --- Main Workflow ---
 def analyze_disease(img_bytes, mime_type):
     description = describe_image_with_gemini(img_bytes)
@@ -155,14 +225,4 @@ def analyze_disease(img_bytes, mime_type):
         print(f"\n=== Final Prediction (after verification) ===\n{final_prediction}")
     else:
         print(f"\n=== Unanimous Prediction ===\n{gemini_prediction}")
-    return convert_to_json(final_prediction)
-
-def convert_to_json(prediction):
-    prediction = prediction.replace("Crop:", "").replace("Disease:", "").split(",")
-    crop = prediction[0].strip()
-    disease = prediction[1].strip()
-
-    return {
-        "crop": crop,
-        "disease": disease
-    }
+    return get_disease_analysis(final_prediction)

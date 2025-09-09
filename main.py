@@ -8,13 +8,6 @@ from crop import analyze_disease
 from crop_advisory import CropAdvisorySystem
 
 app = FastAPI(title="Crop Disease Detection API")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # in production, replace with ["https://your-frontend-domain.com"]
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Global system instance
 advisory_system = None
