@@ -344,9 +344,13 @@ class CropAdvisorySystem:
             'crop_recommendations': recommendations,
             'feature_importance': feature_analysis,
             'model_performance': self.crop_system.model_performance,
-            'analysis_timestamp': datetime.now().isoformat()
+            'analysis_timestamp': datetime.now().isoformat(),
         }
 
+        # Step 6: Get advanced AI insights
+        advanced_insights = self._get_advanced_insights()
+        results['advanced_insights'] = advanced_insights
+        
         return results
 
     def display_comprehensive_report(self, results):
@@ -413,14 +417,15 @@ class CropAdvisorySystem:
             print(f"   {factor['feature']}: {factor['importance']}% ({factor['category']})")
 
         # Advanced Insights
-        self._display_advanced_insights(results)
+        self._get_advanced_insights(results)
 
         print("="*80)
 
-    def _display_advanced_insights(self, results):
+    def _get_advanced_insights(self, results):
         """Display advanced insights"""
         print(f"\nADVANCED AI INSIGHTS:")
         print("-" * 40)
+        insights = []
 
         satellite = results['satellite_data']
         weather = results['weather_data']
@@ -436,6 +441,7 @@ class CropAdvisorySystem:
         else:
             health_status = "Poor"
 
+        insights.append(f"Field Health: {health_status} (NDVI: {ndvi:.3f})")
         print(f"   Field Health: {health_status} (NDVI: {ndvi:.3f})")
 
         # Water availability insight
@@ -448,6 +454,7 @@ class CropAdvisorySystem:
         else:
             water_status = "Water stress detected"
 
+        insights.append(water_status)
         print(f"   {water_status}")
 
         # Nutrient insights
@@ -459,6 +466,7 @@ class CropAdvisorySystem:
         else:
             n_status = "Low nitrogen - consider fertilization"
 
+        insights.append(n_status)
         print(f"   {n_status}")
 
         # Season-specific advice
@@ -470,6 +478,7 @@ class CropAdvisorySystem:
         else:
             seasonal_advice = "Summer season - focus on heat-tolerant varieties"
 
+        insights.append(seasonal_advice)
         print(f"   {seasonal_advice}")
 
         # Risk assessment
@@ -484,8 +493,10 @@ class CropAdvisorySystem:
             risks.append("Soil alkalinity")
 
         if risks:
+            insights.append(f"Risk Factors: {', '.join(risks)}")
             print(f"   Risk Factors: {', '.join(risks)}")
         else:
+            insights.append(f"No major risk factors detected")
             print(f"   No major risk factors detected")
 
         # Confidence assessment
@@ -499,7 +510,10 @@ class CropAdvisorySystem:
         else:
             conf_status = "Low"
 
+        insights.append(f"Recommendation Confidence: {conf_status} ({top_confidence:.1f}%)")
         print(f"   Recommendation Confidence: {conf_status} ({top_confidence:.1f}%)")
+
+        return insights
 
     def get_weather_data(self, lat, lon):
         """Fetch weather data with fallback"""
