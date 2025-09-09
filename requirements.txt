@@ -4,11 +4,8 @@ ipython
 uvicorn
 fastapi
 python-multipart
-dotenv
+python-dotenv
 rasterio
 pandas
 numpy
-request
-datetime
-pickle
-warnings
+requests
