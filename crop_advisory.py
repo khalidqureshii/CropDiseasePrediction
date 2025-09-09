@@ -348,9 +348,9 @@ class CropAdvisorySystem:
         }
 
         # Step 6: Get advanced AI insights
-        advanced_insights = self._get_advanced_insights()
+        advanced_insights = self._get_advanced_insights(results)
         results['advanced_insights'] = advanced_insights
-        
+
         return results
 
     def display_comprehensive_report(self, results):
