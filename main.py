@@ -8,6 +8,14 @@ from crop import analyze_disease
 from crop_advisory import CropAdvisorySystem
 
 app = FastAPI(title="Crop Disease Detection API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Global system instance
 advisory_system = None
@@ -90,7 +98,7 @@ async def get_recommendations(
         raise HTTPException(status_code=500, detail=f"Recommendations failed: {str(e)}")
 
 
-@app.post("/analyze")
+@app.post("/analyze-crops")
 async def analyze_crop(file: UploadFile = File(...)):
     try:
         img_bytes = await file.read()
