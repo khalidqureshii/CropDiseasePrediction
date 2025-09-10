@@ -203,26 +203,26 @@ def analyze_disease(img_bytes, mime_type):
     gemini_prediction = identify_crop_and_disease(img_bytes, mime_type)
     print(f"\n=== Gemini Flash Prediction ===\n{gemini_prediction}")
 
-    gemini_pro_prediction = pro_identify_crop_and_disease(img_bytes, mime_type)
-    print(f"\n=== Gemini Pro Prediction ===\n{gemini_pro_prediction}")
+    # gemini_pro_prediction = pro_identify_crop_and_disease(img_bytes, mime_type)
+    # print(f"\n=== Gemini Pro Prediction ===\n{gemini_pro_prediction}")
 
-    models = ["qwen/qwen3-coder:free", "deepseek/deepseek-chat-v3.1:free"]
-    predictions = predict_with_text_models(description, models)
+    # models = ["qwen/qwen3-coder:free", "deepseek/deepseek-chat-v3.1:free"]
+    # predictions = predict_with_text_models(description, models)
 
-    conflicting_opinions = [gemini_prediction]
-    if gemini_prediction != gemini_pro_prediction:
-        conflicting_opinions.append(gemini_pro_prediction)
-    for model, pred in predictions.items():
-        if pred != gemini_prediction and len(pred) <= 50:
-            conflicting_opinions.append(pred)
+    # conflicting_opinions = [gemini_prediction]
+    # if gemini_prediction != gemini_pro_prediction:
+    #     conflicting_opinions.append(gemini_pro_prediction)
+    # for model, pred in predictions.items():
+    #     if pred != gemini_prediction and len(pred) <= 50:
+    #         conflicting_opinions.append(pred)
 
-    for model, pred in predictions.items():
-        print(f"\n=== Model: {model} ===\nPrediction: {pred}")
+    # for model, pred in predictions.items():
+    #     print(f"\n=== Model: {model} ===\nPrediction: {pred}")
 
-    final_prediction = gemini_prediction
-    if len(conflicting_opinions) > 1:
-        final_prediction = verify_output(img_bytes, conflicting_opinions, mime_type)
-        print(f"\n=== Final Prediction (after verification) ===\n{final_prediction}")
-    else:
-        print(f"\n=== Unanimous Prediction ===\n{gemini_prediction}")
-    return get_disease_analysis(final_prediction)
+    # final_prediction = gemini_prediction
+    # if len(conflicting_opinions) > 1:
+    #     final_prediction = verify_output(img_bytes, conflicting_opinions, mime_type)
+    #     print(f"\n=== Final Prediction (after verification) ===\n{final_prediction}")
+    # else:
+    #     print(f"\n=== Unanimous Prediction ===\n{gemini_prediction}")
+    return get_disease_analysis(gemini_prediction)
