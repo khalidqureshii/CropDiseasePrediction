@@ -98,19 +98,15 @@ async def get_recommendations(
         raise HTTPException(status_code=500, detail=f"Recommendations failed: {str(e)}")
 
 
-import json
-
 @app.post("/analyze-crops")
 async def analyze_crop(file: UploadFile = File(...)):
     try:
         img_bytes = await file.read()
         mime_type = file.content_type
-        raw_result = analyze_disease(img_bytes, mime_type)
-        parsed_result = json.loads(raw_result)
-        return JSONResponse(content=parsed_result) 
+        result = analyze_disease(img_bytes, mime_type)
+        return JSONResponse(content={"result": result})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
-
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
