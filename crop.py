@@ -197,8 +197,8 @@ def get_disease_analysis(prediction: str):
 
 # --- Main Workflow ---
 def analyze_disease(img_bytes, mime_type):
-    description = describe_image_with_gemini(img_bytes)
-    print(f"\n=== Gemini Description ===\n{description}")
+    # description = describe_image_with_gemini(img_bytes)
+    # print(f"\n=== Gemini Description ===\n{description}")
 
     gemini_prediction = identify_crop_and_disease(img_bytes, mime_type)
     print(f"\n=== Gemini Flash Prediction ===\n{gemini_prediction}")
