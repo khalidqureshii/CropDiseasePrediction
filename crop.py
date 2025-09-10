@@ -31,6 +31,8 @@ def analyze_disease(img_bytes, mime_type):
 
         Return ONLY valid JSON in this exact format, in ONE SINGLE LINE (no line breaks, no markdown, no extra text):
         {{"crop": "<name>", "disease": "<name>", "causes": ["cause1", "cause2", ..., "causeN"], "recommendations": ["rec1", "rec2", ..., "recN"]}}
+
+        Give atleast 3 causes & 3 recommendations.
     """
 
     response = gemini_client.models.generate_content(
