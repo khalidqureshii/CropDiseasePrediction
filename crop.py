@@ -4,6 +4,7 @@ from openai import OpenAI # type: ignore
 import os
 from dotenv import load_dotenv # type: ignore
 import re
+import json
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -28,14 +29,8 @@ def analyze_disease(img_bytes, mime_type):
         Crops: {crop_options}
         Diseases: {disease_options}
 
-        Return ONLY valid JSON in this exact format:
-        {{
-            "crop": "<name>",
-            "disease": "<name>",
-            "causes": ["cause1", "cause2", "cause3"],
-            "recommendations": ["rec1", "rec2", "rec3"]
-        }}
-        Do not include any text outside the JSON.
+        Return ONLY valid JSON in this exact format, in ONE SINGLE LINE (no line breaks, no markdown, no extra text):
+        {{"crop": "<name>", "disease": "<name>", "causes": ["cause1", "cause2"], "recommendations": ["rec1", "rec2"]}}
     """
 
     response = gemini_client.models.generate_content(
@@ -45,6 +40,27 @@ def analyze_disease(img_bytes, mime_type):
             "parts": [{"text": prompt}, {"inline_data": {"mime_type": mime_type, "data": img_bytes}}]
         }]
     )
-    return response.text.strip()
+    raw_text = response.text.strip()
+
+    # --- Step 1: Strip markdown fences if present ---
+    cleaned_text = re.sub(r"^```(?:json)?|```$", "", raw_text, flags=re.MULTILINE).strip()
+
+    # --- Step 2: Remove line breaks ---
+    cleaned_text = cleaned_text.replace("\n", "").replace("\r", "").strip()
+
+    # --- Step 3: Extract JSON object if extra text sneaks in ---
+    match = re.search(r"\{.*\}", cleaned_text)
+    if not match:
+        raise ValueError(f"Invalid response format: {raw_text}")
+    
+    json_str = match.group(0)
+
+    # --- Step 4: Parse JSON safely ---
+    try:
+        result = json.loads(json_str)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Failed to parse JSON: {json_str}") from e
+
+    return result
 
 
